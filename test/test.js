@@ -717,7 +717,9 @@ describe('qdb_connect', function()
             describe('multiple tags', function ()
             {
                 var b = c.blob('blob_tag_test');
-                var tags = [ 'line720_0', 'line720_1' ];
+                var tags = [ 'line720_0', 'line720_1', 'line720_2' ];
+                var additional_tags = ['line720_3'];
+                var more_tags = tags.concat(additional_tags);
                 var ts = tags.map(function(t) { return c.tag(t); });
 
                 it('should return an empty tag list', function(done)
@@ -763,6 +765,55 @@ describe('qdb_connect', function()
 
                 describe('addTags', function ()
                 {
+
+                    it('should not remove tags when they are not set', function(done)
+                    {
+                        b.removeTags(tags, function(err)
+                        {
+                            test.must(err).not.be.equal(null);
+                            test.must(err.code).be.a.number();
+                            test.must(err.code).be.equal(42);
+                            test.must(err.informational).be.true();
+
+                            done();
+                        });
+                    });
+
+                    it('should add multiple tags', function(done)
+                    {
+                        b.addTags(additional_tags, function(err)
+                        {
+                            test.must(err).be.equal(null);
+
+                            done();
+                        });
+                    });
+
+                    it('should not remove tags when some are not set', function(done)
+                    {
+                        b.removeTags(more_tags, function(err)
+                        {
+                            test.must(err).not.be.equal(null);
+                            test.must(err.code).be.a.number();
+                            test.must(err.code).be.equal(42);
+                            test.must(err.informational).be.true();
+
+                            done();
+                        });
+                    });
+
+                    it('should not add multiple tags when some tags are already set', function(done)
+                    {
+                        b.addTags(more_tags, function(err)
+                        {
+                            test.must(err).not.be.equal(null);
+                            test.must(err.code).be.a.number();
+                            test.must(err.code).be.equal(41);
+                            test.must(err.informational).be.true();
+
+                            done();
+                        });
+                    });
 
                     it('should add multiple tags successfully', function(done)
                     {
